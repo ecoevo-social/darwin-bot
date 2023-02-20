@@ -1,5 +1,6 @@
 [Unit]
 Description=darwin-bot
+Wants=network.target
 
 [Service]
 Type=simple
