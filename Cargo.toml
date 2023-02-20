@@ -1,0 +1,21 @@
+[package]
+name = "darwin_bot"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures-util = "0.3.25"
+
+[dependencies.mastodon-async]
+git = "https://github.com/dscottboggs/mastodon-async.git"
+features = ["toml", "mt"]
+
+[dependencies.log]
+version = "0.4"
+features = ["kv_unstable", "serde", "std", "kv_unstable_serde", "kv_unstable_std"]
+
+[dependencies.tokio]
+version = "1.22.0"
+features = ["macros", "io-util", "time"]
