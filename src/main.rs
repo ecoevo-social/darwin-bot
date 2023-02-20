@@ -1,25 +1,27 @@
 // example
-
 use mastodon_async::entities::notification::NotificationType;
 use mastodon_async::helpers::toml; // requires `features = ["toml"]`
 use mastodon_async::prelude::*;
 use mastodon_async::{helpers::cli, Result};
+use std::env;
 
 use futures_util::TryStreamExt;
 // use log::{as_serde, info};
 
 #[tokio::main] // requires `features = ["mt"]
 async fn main() -> Result<()> {
-    run().await?;
+    let args: Vec<String> = env::args().collect();
+    let mastodata: &String = &args[1];
+    run(&mastodata).await?;
 
     Ok(())
 }
 
-async fn run() -> Result<()> {
-    let mastodon = if let Ok(data) = toml::from_file("mastodon-data.toml") {
+async fn run(mastodata: &String) -> Result<()> {
+    let mastodon = if let Ok(data) = toml::from_file(&mastodata) {
         Mastodon::from(data)
     } else {
-        register().await?
+        register(&mastodata).await?
     };
     let stream = mastodon.stream_user().await?;
     println!(
@@ -37,7 +39,7 @@ async fn run() -> Result<()> {
     Ok(())
 }
 
-async fn register() -> Result<Mastodon> {
+async fn register(mastodata: &String) -> Result<Mastodon> {
     let registration = Registration::new("https://ecoevo.social")
         .client_name("mastodon-async-examples")
         .build()
@@ -45,7 +47,7 @@ async fn register() -> Result<Mastodon> {
     let mastodon = cli::authenticate(registration).await?;
 
     // Save app data for using on the next run.
-    toml::to_file(&mastodon.data, "mastodon-data.toml")?;
+    toml::to_file(&mastodon.data, mastodata)?;
 
     Ok(mastodon)
 }
