@@ -1,0 +1,9 @@
+[Unit]
+Description=darwin-bot
+
+[Service]
+Type=simple
+ExecStart=/home/alexis/darwin-bot/target/ /home/alexis/.config/darwin-bot/mastodon-data.toml > /home/alexis/.config/darwin-bot/out.log 2>&1
+
+[Install]
+WantedBy=multi-user.target
