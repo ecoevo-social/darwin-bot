@@ -17,6 +17,7 @@ async fn main() -> Result<()> {
     loop {
         run(mastodata).await?;
         count += 1;
+        println!("loop count: {}", count);
         if count == 10 {
             println!("Retried {count} times, I had enough!");
             break;
