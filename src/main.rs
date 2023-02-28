@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
 
     let mut count = 0u32;
     loop {
-        run(mastodata).await?;
+        run(mastodata).await.unwrap();
         count += 1;
         println!("loop count: {}", count);
         if count == 10 {
