@@ -1,23 +1,30 @@
 // example
+use futures_util::TryStreamExt;
+use log::{as_serde, info};
 use mastodon_async::entities::notification::NotificationType;
 use mastodon_async::helpers::toml; // requires `features = ["toml"]`
 use mastodon_async::prelude::*;
 use mastodon_async::{helpers::cli, Result};
 use std::env;
 
-use futures_util::TryStreamExt;
-// use log::{as_serde, info};
-
 #[tokio::main] // requires `features = ["mt"]
 async fn main() -> Result<()> {
+    femme::with_level(log::LevelFilter::Info);
+
     let args: Vec<String> = env::args().collect();
     let mastodata: &String = &args[1];
 
     let mut count = 0u32;
     loop {
-        run(mastodata).await.unwrap();
+        match run(mastodata).await {
+            Ok(_) => {
+                println!("run fn returned OK");
+            }
+            Err(e) => {
+                println!("{:?}", e);
+            }
+        };
         count += 1;
-        println!("loop count: {}", count);
         if count == 10 {
             println!("Retried {count} times, I had enough!");
             break;
@@ -33,7 +40,7 @@ async fn run(mastodata: &String) -> Result<()> {
         register(mastodata).await?
     };
     let stream = mastodon.stream_notifications().await?;
-    println!(
+    info!(
         "watching mastodon for notifications. This will run forever, press Ctrl+C to kill the program."
     );
     stream
