@@ -9,7 +9,7 @@ use std::env;
 
 #[tokio::main] // requires `features = ["mt"]
 async fn main() -> Result<()> {
-    // femme::with_level(log::LevelFilter::Info);
+    femme::with_level(log::LevelFilter::Info);
 
     let args: Vec<String> = env::args().collect();
     let mastodata: &String = &args[1];
