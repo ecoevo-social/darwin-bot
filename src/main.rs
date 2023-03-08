@@ -4,6 +4,7 @@ use log::{as_serde, info};
 use mastodon_async::entities::notification::NotificationType;
 use mastodon_async::helpers::toml; // requires `features = ["toml"]`
 use mastodon_async::prelude::*;
+use mastodon_async::Error;
 use mastodon_async::{helpers::cli, Result};
 use std::env;
 
@@ -23,9 +24,16 @@ async fn main() -> Result<()> {
             Ok(_) => {
                 println!("run fn returned OK");
             }
-            Err(e) => {
-                println!("{:?}", e);
-            }
+            Err(e) => match e {
+                Error::ClientIdRequired
+                | Error::ClientSecretRequired
+                | Error::AccessTokenRequired => {
+                    break;
+                }
+                _ => {
+                    println!("Error: {:?}", e);
+                }
+            },
         }
         count += 1;
     }
