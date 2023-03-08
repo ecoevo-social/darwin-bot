@@ -9,13 +9,16 @@ use std::env;
 
 #[tokio::main] // requires `features = ["mt"]
 async fn main() -> Result<()> {
-    femme::with_level(log::LevelFilter::Info);
+    // femme::with_level(log::LevelFilter::Info);
 
     let args: Vec<String> = env::args().collect();
     let mastodata: &String = &args[1];
 
     let mut count = 0u32;
     loop {
+        if count > 0 {
+            println! {"Retry #{count}."};
+        }
         match run(mastodata).await {
             Ok(_) => {
                 println!("run fn returned OK");
@@ -23,12 +26,8 @@ async fn main() -> Result<()> {
             Err(e) => {
                 println!("{:?}", e);
             }
-        };
-        count += 1;
-        if count == 10 {
-            println!("Retried {count} times, I had enough!");
-            break;
         }
+        count += 1;
     }
     Ok(())
 }
@@ -40,9 +39,9 @@ async fn run(mastodata: &String) -> Result<()> {
         register(mastodata).await?
     };
     let stream = mastodon.stream_notifications().await?;
-    info!(
-        "watching mastodon for notifications. This will run forever, press Ctrl+C to kill the program."
-    );
+    // info!(
+    //     "watching mastodon for notifications. This will run forever, press Ctrl+C to kill the program."
+    // );
     stream
         .try_for_each(|(event, mastodon)| async move {
             if let Event::Notification(notif) = event {
