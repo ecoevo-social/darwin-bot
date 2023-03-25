@@ -1,6 +1,6 @@
 // example
 use futures_util::TryStreamExt;
-use log::{as_serde, info};
+// use log::{as_serde, info};
 use mastodon_async::entities::notification::NotificationType;
 use mastodon_async::helpers::toml; // requires `features = ["toml"]`
 use mastodon_async::prelude::*;
@@ -10,7 +10,7 @@ use std::env;
 
 #[tokio::main] // requires `features = ["mt"]
 async fn main() -> Result<()> {
-    femme::with_level(log::LevelFilter::Info);
+    femme::with_level(log::LevelFilter::Error);
 
     let args: Vec<String> = env::args().collect();
     let mastodata: &String = &args[1];
@@ -30,9 +30,7 @@ async fn main() -> Result<()> {
                 | Error::AccessTokenRequired => {
                     break;
                 }
-                _ => {
-                    println!("Error: {:?}", e);
-                }
+                _ => {}
             },
         }
         count += 1;
@@ -47,9 +45,6 @@ async fn run(mastodata: &String) -> Result<()> {
         register(mastodata).await?
     };
     let stream = mastodon.stream_notifications().await?;
-    // info!(
-    //     "watching mastodon for notifications. This will run forever, press Ctrl+C to kill the program."
-    // );
     stream
         .try_for_each(|(event, mastodon)| async move {
             if let Event::Notification(notif) = event {
@@ -63,7 +58,7 @@ async fn run(mastodata: &String) -> Result<()> {
 
 async fn register(mastodata: &String) -> Result<Mastodon> {
     let registration = Registration::new("https://ecoevo.social")
-        .client_name("mastodon-async-examples")
+        .client_name("ecoevo")
         .build()
         .await?;
     let mastodon = cli::authenticate(registration).await?;
@@ -75,7 +70,10 @@ async fn register(mastodata: &String) -> Result<Mastodon> {
 }
 
 async fn notif_handler(notif: Notification, mastodon: Mastodon) -> Result<()> {
-    if notif.notification_type == NotificationType::Mention && from_ecoevo(&notif) {
+    if notif.notification_type == NotificationType::Mention
+        && from_ecoevo(&notif)
+        && not_huxley(&notif)
+    {
         mastodon.reblog(&notif.status.clone().unwrap().id).await?;
         println!("Rebloged {}", notif.status.unwrap().url.unwrap());
     }
@@ -84,4 +82,8 @@ async fn notif_handler(notif: Notification, mastodon: Mastodon) -> Result<()> {
 
 fn from_ecoevo(notif: &Notification) -> bool {
     notif.account.url.contains("https://ecoevo.social/")
+}
+
+fn not_huxley(notif: &Notification) -> bool {
+    notif.account.acct != "huxley"
 }
