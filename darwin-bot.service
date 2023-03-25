@@ -4,7 +4,8 @@ Wants=network.target
 
 [Service]
 Type=simple
-ExecStart=/home/alexis/darwin-bot/target/release/darwin_bot /home/alexis/.config/darwin-bot/mastodon-data.toml > /home/alexis/darwin-bot.log.json
+ExecStart=/home/alexis/darwin-bot/target/release/darwin_bot /home/alexis/.config/darwin-bot/mastodon-data.toml
+StandardOutput=file:/home/alexis/darwin-bot.log.json
 
 [Install]
 WantedBy=multi-user.target
